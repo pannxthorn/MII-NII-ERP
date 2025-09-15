@@ -20,7 +20,10 @@ namespace ERP.Infrastructure
         {
             // Database
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            {
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            });
 
             // Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();
