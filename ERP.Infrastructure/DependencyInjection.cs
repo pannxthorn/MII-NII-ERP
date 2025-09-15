@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ERP.Application.unitofwork;
+using ERP.Infrastructure.extensions;
+using ERP.Infrastructure.unitofwork;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -18,6 +21,12 @@ namespace ERP.Infrastructure
             // Database
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+            // Unit of Work
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // Auto-register all repositories
+            services.AddRepositories();
 
             return services;
         }
