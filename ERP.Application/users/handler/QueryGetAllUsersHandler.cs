@@ -1,5 +1,7 @@
-﻿using ERP.Application.unitofwork;
+﻿using AutoMapper;
+using ERP.Application.unitofwork;
 using ERP.ApplicationDTO.users;
+using ERP.Domain.entities;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -12,33 +14,26 @@ namespace ERP.Application.users
     public class QueryGetAllUsersHandler : IRequestHandler<QueryGetAllUsers, List<UserDTO>>
     {
         private readonly IUnitOfWork _unitOfWork;
-        public QueryGetAllUsersHandler(IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+        public QueryGetAllUsersHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
         public async Task<List<UserDTO>> Handle(QueryGetAllUsers request, CancellationToken cancellationToken)
         {
+            var listUser = new List<UserDTO>();
             try
             {
                 var users = await _unitOfWork.Users.GetManyAsync(f => f.IsActive && !f.IsDelete);
-
-                return users.Select(u => new UserDTO
-                {
-                    UserId = u.UserId,
-                    CompanyId = u.CompanyId,
-                    BranchId = u.BranchId,
-                    UserName = u.UserName,
-                    Password = u.Password,
-                    Comment = u.Comment,
-                    IsActive = u.IsActive,
-                    IsDelete = u.IsDelete,
-                }).ToList();
+                listUser = _mapper.Map<IEnumerable<User>, IEnumerable<UserDTO>>(users).ToList();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return new List<UserDTO>();
             }
+
+            return listUser;
         }
     }
 }

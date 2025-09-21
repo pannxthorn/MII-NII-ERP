@@ -13,6 +13,7 @@ namespace ERP.Application.repositories
         // Query Methods
         Task<T> GetAsync(Expression<Func<T, bool>> predicate);
         Task<IEnumerable<T>> GetManyAsync(Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<TResult>> GetManyAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector);
 
         // Command Methods
 

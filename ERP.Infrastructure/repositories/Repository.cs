@@ -28,5 +28,10 @@ namespace ERP.Infrastructure.repositories
         {
             return await _dbSet.Where(predicate).ToListAsync();
         }
+
+        public async Task<IEnumerable<TResult>> GetManyAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector)
+        {
+            return await _dbSet.Where(predicate).Select(selector).ToListAsync();
+        }
     }
 }
