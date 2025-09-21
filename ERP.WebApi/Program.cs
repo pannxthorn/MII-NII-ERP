@@ -1,5 +1,6 @@
 using ERP.Application;
 using ERP.Infrastructure;
+using ERP.Shared;
 using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,7 @@ builder.Services.AddSwaggerGen();
 // Add layers
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddSharedLayer();
 
 var app = builder.Build();
 

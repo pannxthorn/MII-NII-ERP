@@ -2,6 +2,7 @@
 using ERP.Application.unitofwork;
 using ERP.ApplicationDTO.users;
 using ERP.Domain.entities;
+using ERP.Shared.encryptservice;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -15,10 +16,12 @@ namespace ERP.Application.users
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public QueryGetAllUsersHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IHashIdService _hashId;
+        public QueryGetAllUsersHandler(IUnitOfWork unitOfWork, IMapper mapper, IHashIdService hashId)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _hashId = hashId;
         }
         public async Task<List<UserDTO>> Handle(QueryGetAllUsers request, CancellationToken cancellationToken)
         {
@@ -26,7 +29,15 @@ namespace ERP.Application.users
             try
             {
                 var users = await _unitOfWork.Users.GetManyAsync(f => f.IsActive && !f.IsDelete);
-                listUser = _mapper.Map<IEnumerable<User>, IEnumerable<UserDTO>>(users).ToList();
+                foreach (var u in users)
+                {
+                    var userDTO = _mapper.Map<User, UserDTO>(u);
+                    userDTO.UserId = _hashId.EncodeId(u.UserId);
+                    userDTO.CompanyId = u.CompanyId != null ? _hashId.EncodeId(u.CompanyId.GetValueOrDefault()) : null;
+                    userDTO.BranchId = u.CompanyId != null ? _hashId.EncodeId(u.CompanyId.GetValueOrDefault()) : null;
+
+                    listUser.Add(userDTO);
+                }
             }
             catch (Exception ex)
             {

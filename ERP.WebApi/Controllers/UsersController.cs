@@ -19,5 +19,13 @@ namespace ERP.WebApi.Controllers
             var users = await _mediator.Send(new QueryGetAllUsers());
             return Ok(users);
         }
+
+        [HttpGet]
+        [Route("GetUserById")]
+        public async Task<IActionResult> GetUserById(string userId)
+        {
+            var users = await _mediator.Send(new QueryGetUserById(userId));
+            return Ok(users);
+        }
     }
 }

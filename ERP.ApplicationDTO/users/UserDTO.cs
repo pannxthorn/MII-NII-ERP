@@ -10,9 +10,9 @@ namespace ERP.ApplicationDTO.users
 {
     public class UserDTO
     {
-        public int UserId { get; set; } // UserId (Primary key)
-        public int? CompanyId { get; set; } // CompanyId
-        public int? BranchId { get; set; } // BranchId
+        public string UserId { get; set; } // UserId (Primary key)
+        public string? CompanyId { get; set; } // CompanyId
+        public string? BranchId { get; set; } // BranchId
         public string? UserName { get; set; } // UserName (length: 100)
         public string? Password { get; set; } // Password (length: 500)
         public string? Comment { get; set; } // Comment (length: 4000)
