@@ -35,6 +35,8 @@ namespace ERP.Application.users
                     userDTO.UserId = _hashId.EncodeId(u.UserId);
                     userDTO.CompanyId = u.CompanyId != null ? _hashId.EncodeId(u.CompanyId.GetValueOrDefault()) : null;
                     userDTO.BranchId = u.BranchId != null ? _hashId.EncodeId(u.BranchId.GetValueOrDefault()) : null;
+                    userDTO.Created_By_Id = _hashId.EncodeId(u.Created_By_Id);
+                    userDTO.Last_Update_By_Id= _hashId.EncodeId(u.Last_Update_By_Id);
 
                     listUser.Add(userDTO);
                 }

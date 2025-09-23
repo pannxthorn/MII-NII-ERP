@@ -33,6 +33,8 @@ namespace ERP.Application.users
                 user.UserId = _hashId.EncodeId(userModel.UserId);
                 user.CompanyId = userModel.CompanyId != null ? _hashId.EncodeId(userModel.CompanyId.GetValueOrDefault()) : null;
                 user.BranchId = userModel.BranchId != null ? _hashId.EncodeId(userModel.BranchId.GetValueOrDefault()) : null;
+                user.Created_By_Id = _hashId.EncodeId(userModel.Created_By_Id);
+                user.Last_Update_By_Id = _hashId.EncodeId(userModel.Last_Update_By_Id);
             }
             catch (Exception ex)
             {

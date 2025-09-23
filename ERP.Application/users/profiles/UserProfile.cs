@@ -14,6 +14,13 @@ namespace ERP.Application.users
         public UserProfile() 
         {
             CreateMap<User, UserDTO>();
+
+            CreateMap<CreateUserDTO, User>()
+                .ForMember(u => u.UserId, m => m.Ignore())
+                .ForMember(u => u.CompanyId, m => m.Ignore())
+                .ForMember(u => u.BranchId, m => m.Ignore())
+                .ForMember(u => u.Created_By_Id, m => m.Ignore())
+                .ForMember(u => u.Last_Update_By_Id, m => m.Ignore());
         }
     }
 }

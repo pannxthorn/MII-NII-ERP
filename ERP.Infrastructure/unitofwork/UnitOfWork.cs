@@ -36,7 +36,7 @@ namespace ERP.Infrastructure.unitofwork
         #endregion [Repository Properties]
 
 
-        public async Task BeginTransactionAsync()
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
             if (_transaction != null)
             {
@@ -44,6 +44,7 @@ namespace ERP.Infrastructure.unitofwork
             }
 
             _transaction = await _context.Database.BeginTransactionAsync();
+            return _transaction;
         }
 
         public async Task CommitTransactionAsync()
@@ -98,6 +99,59 @@ namespace ERP.Infrastructure.unitofwork
             {
                 // Log exception here
                 throw new Exception("An error occurred while saving changes to the database.", ex);
+            }
+        }
+
+        public async Task ExecuteInTransactionAsync(Func<Task> operation)
+        {
+            if (_transaction != null)
+            {
+                // ถ้ามี transaction อยู่แล้ว ใช้ transaction เดิม (Nested Transaction)
+                await operation();
+                return;
+            }
+
+            using var transaction = await BeginTransactionAsync();
+
+            try
+            {
+                await operation();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+            finally
+            {
+                _transaction = null;
+            }
+        }
+
+        public async Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> operation)
+        {
+            if (_transaction != null)
+            {
+                return await operation();
+            }
+
+            using var transaction = await BeginTransactionAsync();
+
+            try
+            {
+                var result = await operation();
+                await transaction.CommitAsync();
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+            finally
+            {
+                _transaction = null;
             }
         }
 

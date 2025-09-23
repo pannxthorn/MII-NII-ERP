@@ -1,5 +1,6 @@
 ﻿using ERP.Application.users;
 using ERP.ApplicationDTO.users;
+using ERP.Shared._base.BaseResponse;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +27,13 @@ namespace ERP.WebApi.Controllers
         {
             var users = await _mediator.Send(new QueryGetUserById(userId));
             return Ok(users);
+        }
+
+        [HttpPost]
+        [Route("CreateUser")]
+        public async Task<ActionResult<BaseResponse<UserDTO>>> CreateUser ([FromBody] CreateUserDTO userDTO)
+        {
+            return await _mediator.Send(new CommandCreateUser(userDTO));
         }
     }
 }

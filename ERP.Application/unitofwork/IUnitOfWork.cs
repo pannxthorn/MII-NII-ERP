@@ -1,5 +1,6 @@
 ﻿using ERP.Application.repositories;
 using ERP.Domain.entities;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +17,10 @@ namespace ERP.Application.unitofwork
         #endregion [Repository]
 
         Task SaveChangesAsync();
-        Task BeginTransactionAsync();
+        Task<IDbContextTransaction> BeginTransactionAsync();
         Task CommitTransactionAsync();
         Task RollbackTransactionAsync();
+        Task ExecuteInTransactionAsync(Func<Task> operation);
+        Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> operation);
     }
 }

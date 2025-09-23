@@ -19,6 +19,9 @@ namespace ERP.Infrastructure.repositories
             _context = context;
             _dbSet = context.Set<T>();
         }
+
+        #region [Get Data]
+
         public async Task<T> GetAsync(int id)
         {
             return await _dbSet.FindAsync(id);
@@ -37,5 +40,25 @@ namespace ERP.Infrastructure.repositories
         {
             return await _dbSet.Where(predicate).Select(selector).ToListAsync();
         }
+
+        #endregion [Get Data]
+
+        #region [Any]
+
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
+        }
+
+        #endregion [Any]
+
+        #region [Create Data]
+
+        public async Task AddAsync(T entity)
+        {
+            await _dbSet.AddAsync(entity);
+        }
+
+        #endregion [Create Data]
     }
 }

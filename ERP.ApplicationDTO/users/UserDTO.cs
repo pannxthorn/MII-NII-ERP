@@ -14,9 +14,12 @@ namespace ERP.ApplicationDTO.users
         public string? CompanyId { get; set; } // CompanyId
         public string? BranchId { get; set; } // BranchId
         public string? UserName { get; set; } // UserName (length: 100)
-        public string? Password { get; set; } // Password (length: 500)
         public string? Comment { get; set; } // Comment (length: 4000)
         public bool IsActive { get; set; } // IsActive
         public bool IsDelete { get; set; } // IsDelete
+        public string? Created_By_Id { get; set; }
+        public DateTime? Creation_Date { get; set; }
+        public string? Last_Update_By_Id { get; set; }
+        public DateTime? Last_Update_By_Date { get; set; }
     }
 }

@@ -1,0 +1,20 @@
+﻿using ERP.ApplicationDTO.users;
+using ERP.Shared._base.BaseResponse;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ERP.Application.users
+{
+    public class CommandCreateUser : IRequest<BaseResponse<UserDTO>>
+    {
+        public CreateUserDTO Args { get; set; }
+        public CommandCreateUser(CreateUserDTO args)
+        {
+            Args = args;
+        }
+    }
+}
