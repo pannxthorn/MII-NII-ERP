@@ -34,7 +34,7 @@ namespace ERP.Application.users
                     var userDTO = _mapper.Map<User, UserDTO>(u);
                     userDTO.UserId = _hashId.EncodeId(u.UserId);
                     userDTO.CompanyId = u.CompanyId != null ? _hashId.EncodeId(u.CompanyId.GetValueOrDefault()) : null;
-                    userDTO.BranchId = u.CompanyId != null ? _hashId.EncodeId(u.CompanyId.GetValueOrDefault()) : null;
+                    userDTO.BranchId = u.BranchId != null ? _hashId.EncodeId(u.BranchId.GetValueOrDefault()) : null;
 
                     listUser.Add(userDTO);
                 }
