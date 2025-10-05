@@ -21,12 +21,12 @@ namespace ERP.Domain.entities
         [Column(@"UserName", Order = 4, TypeName = BaseConst.VARCHAR_100)]
         [Required]
         [MaxLength(100)]
-        public string? UserName { get; set; } // UserName (length: 100)
+        public required string UserName { get; set; } // UserName (length: 100)
 
         [Column(@"Password", Order = 5, TypeName = BaseConst.VARCHAR_500)]
         [Required]
         [MaxLength(500)]
-        public string? Password { get; set; } // Password (length: 500)
+        public required string Password { get; set; } // Password (length: 500)
 
         [Column(@"Comment", Order = 6, TypeName = BaseConst.VARCHAR_4000)]
         [MaxLength(4000)]
@@ -55,5 +55,7 @@ namespace ERP.Domain.entities
         [Column(@"IsDelete", Order = 12, TypeName = BaseConst.BIT)]
         [Required]
         public bool IsDelete { get; set; } // IsDelete
+
+        public virtual Company? Company { get; set; }
     }
 }

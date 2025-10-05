@@ -10,7 +10,7 @@ namespace ERP.ApplicationDTO.users
 {
     public class UserDTO
     {
-        public string UserId { get; set; } // UserId (Primary key)
+        public string UserId { get; set; } = string.Empty; // UserId (Primary key)
         public string? CompanyId { get; set; } // CompanyId
         public string? BranchId { get; set; } // BranchId
         public string? UserName { get; set; } // UserName (length: 100)
@@ -21,5 +21,10 @@ namespace ERP.ApplicationDTO.users
         public DateTime? Creation_Date { get; set; }
         public string? Last_Update_By_Id { get; set; }
         public DateTime? Last_Update_By_Date { get; set; }
+
+        public UserDTO()
+        {
+            UserId = string.Empty;
+        }
     }
 }

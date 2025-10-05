@@ -4,6 +4,7 @@ using ERP.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251005142052_UpdateTableCompany")]
+    partial class UpdateTableCompany
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,107 +24,6 @@ namespace ERP.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ERP.Domain.entities.Branch", b =>
-                {
-                    b.Property<int>("BranchId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("BranchId")
-                        .HasColumnOrder(1);
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BranchId"));
-
-                    b.Property<string>("BranchCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("BranchCode")
-                        .HasColumnOrder(3);
-
-                    b.Property<string>("BranchName")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("varchar(300)")
-                        .HasColumnName("BranchName")
-                        .HasColumnOrder(4);
-
-                    b.Property<string>("Comment")
-                        .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)")
-                        .HasColumnName("Comment")
-                        .HasColumnOrder(9);
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int")
-                        .HasColumnName("CompanyId")
-                        .HasColumnOrder(2);
-
-                    b.Property<int>("Created_By_Id")
-                        .HasColumnType("int")
-                        .HasColumnName("Created_By_Id")
-                        .HasColumnOrder(11);
-
-                    b.Property<DateTime>("Creation_Date")
-                        .HasColumnType("datetime")
-                        .HasColumnName("Creation_Date")
-                        .HasColumnOrder(12);
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("Email")
-                        .HasColumnOrder(6);
-
-                    b.Property<string>("Facebook")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("Facebook")
-                        .HasColumnOrder(8);
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsActive")
-                        .HasColumnOrder(15);
-
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDelete")
-                        .HasColumnOrder(16);
-
-                    b.Property<bool>("IsHeadQuarter")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsHeadQuarter")
-                        .HasColumnOrder(10);
-
-                    b.Property<DateTime>("Last_Update_By_Date")
-                        .HasColumnType("datetime")
-                        .HasColumnName("Last_Update_By_Date")
-                        .HasColumnOrder(14);
-
-                    b.Property<int>("Last_Update_By_Id")
-                        .HasColumnType("int")
-                        .HasColumnName("Last_Update_By_Id")
-                        .HasColumnOrder(13);
-
-                    b.Property<string>("Line")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("Line")
-                        .HasColumnOrder(7);
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("Phone")
-                        .HasColumnOrder(5);
-
-                    b.HasKey("BranchId");
-
-                    b.HasIndex("CompanyId");
-
-                    b.ToTable("Branch");
-                });
 
             modelBuilder.Entity("ERP.Domain.entities.Company", b =>
                 {
@@ -313,17 +215,6 @@ namespace ERP.Infrastructure.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("ERP.Domain.entities.Branch", b =>
-                {
-                    b.HasOne("ERP.Domain.entities.Company", "Company")
-                        .WithMany("Branches")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-                });
-
             modelBuilder.Entity("ERP.Domain.entities.User", b =>
                 {
                     b.HasOne("ERP.Domain.entities.Company", "Company")
@@ -332,11 +223,6 @@ namespace ERP.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Company");
-                });
-
-            modelBuilder.Entity("ERP.Domain.entities.Company", b =>
-                {
-                    b.Navigation("Branches");
                 });
 #pragma warning restore 612, 618
         }

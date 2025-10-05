@@ -8,8 +8,8 @@ namespace ERP.ApplicationDTO.users
 {
     public class CreateUserDTO
     {
-        public string UserName { get; set; }
-        public string Password { get; set; }
-        public string Comment { get; set; }
+        public required string UserName { get; set; }
+        public required string Password { get; set; }
+        public string? Comment { get; set; }
     }
 }

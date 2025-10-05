@@ -14,5 +14,32 @@ namespace ERP.Infrastructure
 
         // DbSet Here
         public DbSet<User> User { get; set; }
+        public DbSet<Company> Company { get; set; }
+        public DbSet<Branch> Branch { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            #region [User]
+
+            modelBuilder.Entity<User>()
+                .HasOne(c => c.Company)
+                .WithMany()
+                .OnDelete(DeleteBehavior.SetNull);
+
+            #endregion [User]
+
+            #region [Company]
+            #endregion [Company]
+
+            #region [Branch]
+
+            modelBuilder.Entity<Branch>()
+                .HasOne(c => c.Company)
+                .WithMany(b => b.Branches)
+                .HasForeignKey(c => c.CompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion [Branch]
+        }
     }
 }
