@@ -13,6 +13,8 @@ namespace ERP.Application.unitofwork
     {
         #region [Repository]
         IRepository<User> Users { get; }
+        IRepository<Company> Company { get; }
+        IRepository<Branch> Branch { get; }
 
         #endregion [Repository]
 

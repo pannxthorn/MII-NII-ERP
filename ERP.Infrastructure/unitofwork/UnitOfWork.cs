@@ -24,6 +24,8 @@ namespace ERP.Infrastructure.unitofwork
         #region [Repository Instances]
 
         private IRepository<User> _users;
+        private IRepository<Company> _company;
+        private IRepository<Branch> _branch;
 
         #endregion [Repository instances]
 
@@ -33,6 +35,15 @@ namespace ERP.Infrastructure.unitofwork
             get { return _users ??= new Repository<User>(_context); }
         }
 
+        public IRepository<Company> Company
+        {
+            get { return _company ??= new Repository<Company>(_context); }
+        }
+
+        public IRepository<Branch> Branch
+        {
+            get { return _branch ??= new Repository<Branch>(_context); }
+        }
         #endregion [Repository Properties]
 
 

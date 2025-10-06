@@ -19,4 +19,8 @@
     <ProjectReference Include="..\ERP.Shared\ERP.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="company\queries\" />
+  </ItemGroup>
+
 </Project>

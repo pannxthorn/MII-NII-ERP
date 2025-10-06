@@ -21,10 +21,5 @@ namespace ERP.ApplicationDTO.users
         public DateTime? Creation_Date { get; set; }
         public string? Last_Update_By_Id { get; set; }
         public DateTime? Last_Update_By_Date { get; set; }
-
-        public UserDTO()
-        {
-            UserId = string.Empty;
-        }
     }
 }
