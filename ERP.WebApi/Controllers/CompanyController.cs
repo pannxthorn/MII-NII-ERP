@@ -1,0 +1,41 @@
+﻿using ERP.Application.company;
+using ERP.Application.company.queries;
+using ERP.Application.users;
+using ERP.ApplicationDTO.company;
+using ERP.Shared._base.BaseResponse;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ERP.WebApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class CompanyController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+        public CompanyController(IMediator mediator) { _mediator = mediator; }
+
+        [HttpGet]
+        [Route("GetAllCompany")]
+        public async Task<IActionResult> GettAllCompany()
+        {
+            var users = await _mediator.Send(new QueryGetAllCompany());
+            return Ok(users);
+        }
+
+        [HttpGet]
+        [Route("GetCompanyById")]
+        public async Task<IActionResult> GetCompanyById(string companyId)
+        {
+            var users = await _mediator.Send(new QueryGetCompanyById(companyId));
+            return Ok(users);
+        }
+
+        [HttpPost]
+        [Route("CreateCompany")]
+        public async Task<ActionResult<BaseResponse<CompanyDTO>>> CreateCompany([FromBody] CreateCompanyDTO companyDTO)
+        {
+            return await _mediator.Send(new CommandCreateCompany(companyDTO));
+        }
+    }
+}

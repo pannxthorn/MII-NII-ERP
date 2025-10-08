@@ -1,5 +1,6 @@
 ﻿using ERP.Application.repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,14 +27,60 @@ namespace ERP.Infrastructure.repositories
         {
             return await _dbSet.FindAsync(id);
         }
+
         public async Task<T> GetAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.FirstOrDefaultAsync(predicate);
         }
 
+        public async Task<T> GetAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>>? includes = null,
+                                        bool asNoTracking = true, bool useSplitQuery = true)
+        {
+            var query = _dbSet.Where(predicate);
+            if (includes != null)
+            {
+                query = includes(query);
+            }
+
+            if (asNoTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
+            if (useSplitQuery)
+            {
+                query = query.AsSplitQuery();
+            }
+
+            return await query.FirstOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<T>> GetManyAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.Where(predicate).ToListAsync();
+        }
+
+        public async Task<IEnumerable<T>> GetManyAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>>? includes = null,
+                                                        bool asNoTracking = true, bool useSplitQuery = true)
+        {
+            var query = _dbSet.Where(predicate);
+
+            if (includes != null)
+            {
+                query = includes(query);
+            }
+
+            if (asNoTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
+            if (useSplitQuery)
+            {
+                query = query.AsSplitQuery();
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<IEnumerable<TResult>> GetManyAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector)
