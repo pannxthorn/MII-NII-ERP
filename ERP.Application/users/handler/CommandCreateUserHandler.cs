@@ -66,8 +66,8 @@ namespace ERP.Application.users.handler
             if (!await _unitOfWork.Users.AnyAsync(f => f.UserName == args.UserName))
             {
                 var userMapper = _mapper.Map<CreateUserDTO, User>(args);
-                userMapper.CompanyId = 1;
-                userMapper.BranchId = 1;
+                userMapper.CompanyId = _hashId.DecodeToInt(args.CompanyId);
+                userMapper.BranchId = _hashId.DecodeToInt(args.BranchId);
 
                 userMapper.IsActive = true;
                 userMapper.IsDelete = false;
