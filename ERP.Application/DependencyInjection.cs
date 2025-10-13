@@ -1,15 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ERP.Application.branch.handler;
+using ERP.Application.company.events;
+using ERP.EventBus;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ERP.Application
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
+        public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddMediatR(configuration =>
             {
@@ -17,6 +16,13 @@ namespace ERP.Application
             });
 
             services.AddAutoMapper(typeof(DependencyInjection).Assembly);
+
+            // Add EventBus
+            services.AddEventBus(configuration);
+
+            // Register Event Handlers
+            services.AddEventHandler<CompanyCreatedEvent, CommandCreateBranchHandler>();
+
             return services;
         }
     }

@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ERP.ApplicationDTO\ERP.ApplicationDTO.csproj" />
     <ProjectReference Include="..\ERP.Domain\ERP.Domain.csproj" />
+    <ProjectReference Include="..\ERP.EventBus\ERP.EventBus.csproj" />
     <ProjectReference Include="..\ERP.Shared\ERP.Shared.csproj" />
   </ItemGroup>
 

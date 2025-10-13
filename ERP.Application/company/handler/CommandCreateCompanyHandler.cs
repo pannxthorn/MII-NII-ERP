@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ERP.Application.company.events;
 using ERP.Application.unitofwork;
 using ERP.ApplicationDTO.branch;
 using ERP.ApplicationDTO.company;
@@ -7,12 +8,9 @@ using ERP.Domain.entities;
 using ERP.Shared._base.BaseMessage;
 using ERP.Shared._base.BaseResponse;
 using ERP.Shared.encryptservice;
+using ERP.EventBus;
+using ERP.EventBus.Interfaces;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ERP.Application.company.handler
 {
@@ -21,12 +19,14 @@ namespace ERP.Application.company.handler
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHashIdService _hashId;
+        private readonly IEventBus _eventBus;
 
-        public CommandCreateCompanyHandler(IUnitOfWork unitOfWork, IMapper mapper, IHashIdService hashId)
+        public CommandCreateCompanyHandler(IUnitOfWork unitOfWork, IMapper mapper, IHashIdService hashId, IEventBus eventBus)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hashId = hashId;
+            _eventBus = eventBus;
         }
 
         public async Task<BaseResponse<CompanyDTO>> Handle(CommandCreateCompany request, CancellationToken cancellationToken)
@@ -45,19 +45,14 @@ namespace ERP.Application.company.handler
                         companyMapper.Created_By_Id = _hashId.EncodeId(company.Created_By_Id);
                         companyMapper.Last_Update_By_Id = _hashId.EncodeId(company.Last_Update_By_Id);
 
-                        var listBranch = new List<BranchDTO>();
-                        foreach (var branch in company.Branches)
+                        // Publish event for branch creation
+                        await _eventBus.PublishAsync(new CompanyCreatedEvent
                         {
-                            var branchMapper = _mapper.Map<Branch, BranchDTO>(branch);
-                            branchMapper.BranchId = _hashId.EncodeId(branch.BranchId);
-                            branchMapper.CompanyId = _hashId.EncodeId(branch.CompanyId);
-
-                            branchMapper.Created_By_Id = _hashId.EncodeId(branch.Created_By_Id);
-                            branchMapper.Last_Update_By_Id = _hashId.EncodeId(branch.Last_Update_By_Id);
-
-                            listBranch.Add(branchMapper);
-                        }
-                        companyMapper.BranchDTOs = listBranch;
+                            CompanyId = company.CompanyId,
+                            CompanyCode = company.CompanyCode,
+                            CompanyName = company.CompanyName,
+                            BranchDTOs = request.Args.BranchDTOs?.ToList() ?? new List<CreateBranchDTO>()
+                        });
 
                         result.Data = companyMapper;
                         result.Message = BaseMessage.dataSuccess;
@@ -93,22 +88,6 @@ namespace ERP.Application.company.handler
 
                     companyMapper.Last_Update_By_Id = 1;
                     companyMapper.Last_Update_By_Date = now;
-
-                    foreach(var branch in args.BranchDTOs)
-                    {
-                        var branchMapper = _mapper.Map<CreateBranchDTO, Branch>(branch);
-                        branchMapper.IsActive = true;
-                        branchMapper.IsDelete = false;
-
-                        branchMapper.Created_By_Id = 1;
-                        branchMapper.Creation_Date = now;
-
-                        branchMapper.Last_Update_By_Id = 1;
-                        branchMapper.Last_Update_By_Date = now;
-
-                        companyMapper.Branches.Add(branchMapper);
-                        await _unitOfWork.Branch.AddAsync(branchMapper);
-                    }
 
                     await _unitOfWork.Company.AddAsync(companyMapper);
                     await _unitOfWork.SaveChangesAsync();
