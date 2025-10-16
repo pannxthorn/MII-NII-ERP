@@ -4,12 +4,14 @@ using ERP.Application.users;
 using ERP.ApplicationDTO.company;
 using ERP.Shared._base.BaseResponse;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ERP.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CompanyController : ControllerBase
     {
         private readonly IMediator _mediator;

@@ -1,4 +1,5 @@
-﻿using ERP.Shared.encryptservice;
+﻿using ERP.Shared.authenticationservice;
+using ERP.Shared.encryptservice;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace ERP.Shared
         public static IServiceCollection AddSharedLayer(this IServiceCollection services)
         {
             services.AddScoped<IHashIdService, HashIdService>();
+            services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IPasswordHashingService, PasswordHashingService>();
             return services;
         }
     }

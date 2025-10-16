@@ -4,6 +4,7 @@ using ERP.ApplicationDTO.users;
 using ERP.Domain.entities;
 using ERP.Shared._base.BaseMessage;
 using ERP.Shared._base.BaseResponse;
+using ERP.Shared.authenticationservice;
 using ERP.Shared.encryptservice;
 using MediatR;
 using System;
@@ -19,11 +20,13 @@ namespace ERP.Application.users.handler
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHashIdService _hashId;
-        public CommandCreateUserHandler(IUnitOfWork unitOfWork, IMapper mapper, IHashIdService hashId)
+        private readonly IPasswordHashingService _passwordHashing;
+        public CommandCreateUserHandler(IUnitOfWork unitOfWork, IMapper mapper, IHashIdService hashId, IPasswordHashingService passwordHashing)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hashId = hashId;
+            _passwordHashing = passwordHashing;
         }
         public async Task<BaseResponse<UserDTO>> Handle(CommandCreateUser request, CancellationToken cancellationToken)
         {
@@ -66,6 +69,8 @@ namespace ERP.Application.users.handler
             if (!await _unitOfWork.Users.AnyAsync(f => f.UserName == args.UserName))
             {
                 var userMapper = _mapper.Map<CreateUserDTO, User>(args);
+                userMapper.Password = _passwordHashing.HashPassword(args.Password);
+
                 userMapper.CompanyId = _hashId.DecodeToInt(args.CompanyId);
                 userMapper.BranchId = _hashId.DecodeToInt(args.BranchId);
 
