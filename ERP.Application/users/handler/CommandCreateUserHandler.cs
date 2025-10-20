@@ -35,7 +35,7 @@ namespace ERP.Application.users.handler
             {
                 return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
-                    var user = await CreateUser(request.Args);
+                    var user = await CreateUser(request.Args, request.CurrentUser);
                     if(user != null)
                     {
                         var userMapper = _mapper.Map<User, UserDTO>(user);
@@ -63,7 +63,7 @@ namespace ERP.Application.users.handler
             }
         }
 
-        public async Task<User?> CreateUser(CreateUserDTO args)
+        public async Task<User?> CreateUser(CreateUserDTO args, CurrentUserVM currentUser)
         {
             DateTime now = DateTime.UtcNow;
             if (!await _unitOfWork.Users.AnyAsync(f => f.UserName == args.UserName))
@@ -77,10 +77,10 @@ namespace ERP.Application.users.handler
                 userMapper.IsActive = true;
                 userMapper.IsDelete = false;
 
-                userMapper.Created_By_Id = 1;
+                userMapper.Created_By_Id = currentUser.UserId;
                 userMapper.Creation_Date = now;
 
-                userMapper.Last_Update_By_Id = 1;
+                userMapper.Last_Update_By_Id = currentUser.UserId;
                 userMapper.Last_Update_By_Date = now;
 
                 await _unitOfWork.Users.AddAsync(userMapper);

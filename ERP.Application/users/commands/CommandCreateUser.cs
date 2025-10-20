@@ -12,9 +12,12 @@ namespace ERP.Application.users
     public class CommandCreateUser : IRequest<BaseResponse<UserDTO>>
     {
         public CreateUserDTO Args { get; set; }
-        public CommandCreateUser(CreateUserDTO args)
+        public CurrentUserVM CurrentUser { get; set; }
+
+        public CommandCreateUser(CreateUserDTO args, CurrentUserVM currentUser)
         {
             Args = args;
+            CurrentUser = currentUser;
         }
     }
 }
