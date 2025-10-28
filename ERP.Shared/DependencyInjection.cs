@@ -1,4 +1,5 @@
-﻿using ERP.Shared.authenticationservice;
+﻿using ERP.Shared._base;
+using ERP.Shared.authenticationservice;
 using ERP.Shared.encryptservice;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -16,6 +17,7 @@ namespace ERP.Shared
             services.AddScoped<IHashIdService, HashIdService>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IPasswordHashingService, PasswordHashingService>();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
             return services;
         }
     }

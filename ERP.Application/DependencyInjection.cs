@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ERP.Application._base;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,9 @@ namespace ERP.Application
             services.AddMediatR(configuration =>
             {
                 configuration.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+
+                // Add Pipeline Behavior สำหรับ inject CurrentUser
+                configuration.AddOpenBehavior(typeof(CurrentUserBehavior<,>));
             });
 
             services.AddAutoMapper(typeof(DependencyInjection).Assembly);

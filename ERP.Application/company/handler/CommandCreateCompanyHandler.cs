@@ -34,9 +34,12 @@ namespace ERP.Application.company.handler
             var result = new BaseResponse<CompanyDTO>();
             try
             {
+                if (request.CurrentUser == null)
+                    throw new UnauthorizedAccessException("User is not authenticated");
+
                 return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
-                    var company = await CreateCompany(request.Args);
+                    var company = await CreateCompany(request.Args, request.CurrentUser);
                     if (company != null)
                     {
                         var companyMapper = _mapper.Map<Company, CompanyDTO>(company);
@@ -77,7 +80,7 @@ namespace ERP.Application.company.handler
             }
         }
 
-        public async Task<Company?> CreateCompany(CreateCompanyDTO args)
+        public async Task<Company?> CreateCompany(CreateCompanyDTO args, CurrentUserVM currentUser)
         {
             DateTime now = DateTime.UtcNow;
             if (!await _unitOfWork.Company.AnyAsync(f => f.CompanyCode == args.CompanyCode))
@@ -88,10 +91,10 @@ namespace ERP.Application.company.handler
                     companyMapper.IsActive = true;
                     companyMapper.IsDelete = false;
 
-                    companyMapper.Created_By_Id = 1;
+                    companyMapper.Created_By_Id = currentUser.UserId;
                     companyMapper.Creation_Date = now;
 
-                    companyMapper.Last_Update_By_Id = 1;
+                    companyMapper.Last_Update_By_Id = currentUser.UserId;
                     companyMapper.Last_Update_By_Date = now;
 
                     foreach(var branch in args.BranchDTOs)
@@ -100,10 +103,10 @@ namespace ERP.Application.company.handler
                         branchMapper.IsActive = true;
                         branchMapper.IsDelete = false;
 
-                        branchMapper.Created_By_Id = 1;
+                        branchMapper.Created_By_Id = currentUser.UserId;
                         branchMapper.Creation_Date = now;
 
-                        branchMapper.Last_Update_By_Id = 1;
+                        branchMapper.Last_Update_By_Id = currentUser.UserId;
                         branchMapper.Last_Update_By_Date = now;
 
                         companyMapper.Branches.Add(branchMapper);

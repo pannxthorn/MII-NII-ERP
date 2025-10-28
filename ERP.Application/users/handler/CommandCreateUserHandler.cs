@@ -33,6 +33,9 @@ namespace ERP.Application.users.handler
             var result = new BaseResponse<UserDTO>();
             try
             {
+                if (request.CurrentUser == null)
+                    throw new UnauthorizedAccessException("User is not authenticated");
+
                 return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
                     var user = await CreateUser(request.Args, request.CurrentUser);

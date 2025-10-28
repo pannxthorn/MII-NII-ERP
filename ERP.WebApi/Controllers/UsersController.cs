@@ -10,7 +10,7 @@ namespace ERP.WebApi.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class UsersController : BaseController
+    public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;
         public UsersController(IMediator mediator) { _mediator = mediator; }
@@ -35,7 +35,7 @@ namespace ERP.WebApi.Controllers
         [Route("CreateUser")]
         public async Task<ActionResult<BaseResponse<UserDTO>>> CreateUser ([FromBody] CreateUserDTO userDTO)
         {
-            return await _mediator.Send(new CommandCreateUser(userDTO, GetCurrentUser()));
+            return await _mediator.Send(new CommandCreateUser(userDTO));
         }
     }
 }
