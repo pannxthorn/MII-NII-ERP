@@ -6,6 +6,7 @@ using ERP.Shared._base.BaseMessage;
 using ERP.Shared._base.BaseResponse;
 using ERP.Shared.authenticationservice;
 using ERP.Shared.encryptservice;
+using ERP.Shared.models;
 using MediatR;
 using System;
 using System.Collections.Generic;

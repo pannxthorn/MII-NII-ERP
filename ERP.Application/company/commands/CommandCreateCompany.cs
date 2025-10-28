@@ -1,7 +1,7 @@
 ﻿using ERP.Application._base;
 using ERP.ApplicationDTO.company;
-using ERP.ApplicationDTO.users;
 using ERP.Shared._base.BaseResponse;
+using ERP.Shared.models;
 using MediatR;
 using System;
 using System.Collections.Generic;

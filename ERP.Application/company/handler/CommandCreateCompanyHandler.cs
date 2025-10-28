@@ -2,11 +2,11 @@
 using ERP.Application.unitofwork;
 using ERP.ApplicationDTO.branch;
 using ERP.ApplicationDTO.company;
-using ERP.ApplicationDTO.users;
 using ERP.Domain.entities;
 using ERP.Shared._base.BaseMessage;
 using ERP.Shared._base.BaseResponse;
 using ERP.Shared.encryptservice;
+using ERP.Shared.models;
 using MediatR;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-using ERP.ApplicationDTO.users;
+using ERP.Shared.models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 

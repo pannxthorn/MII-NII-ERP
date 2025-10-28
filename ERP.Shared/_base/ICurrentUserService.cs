@@ -1,4 +1,4 @@
-using ERP.ApplicationDTO.users;
+using ERP.Shared.models;
 
 namespace ERP.Shared._base
 {
