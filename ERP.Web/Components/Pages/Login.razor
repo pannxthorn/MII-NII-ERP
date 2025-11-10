@@ -1,0 +1,156 @@
+@page "/login"
+@layout EmptyLayout
+@rendermode InteractiveServer
+@using ERP.Web.Services
+@using ERP.ApplicationDTO.users
+@inject AuthService AuthService
+@inject TokenStorageService TokenStorage
+@inject NavigationManager Navigation
+
+<PageTitle>Login</PageTitle>
+
+<div class="min-h-screen flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <!-- Logo/Header Section -->
+        <div class="text-center">
+            <h2 class="text-4xl font-bold text-blue-600 mb-2">
+                Welcome Back
+            </h2>
+            <p class="text-gray-600 text-sm">
+                Please sign in to your account
+            </p>
+        </div>
+
+        <!-- Error Message -->
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                <p class="text-sm">@errorMessage</p>
+            </div>
+        }
+
+        <!-- Login Form -->
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+            <EditForm Model="@loginModel" OnValidSubmit="HandleLogin" FormName="loginForm" class="space-y-6">
+                <DataAnnotationsValidator />
+                <!-- Username Field -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                        Username
+                    </label>
+                    <InputText id="username"
+                    @bind-Value="loginModel.UserName"
+                    class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                    placeholder="Enter your username" />
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        Password
+                    </label>
+                    <InputText id="password"
+                    type="password"
+                    @bind-Value="loginModel.Password"
+                    class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                    placeholder="Enter your password" />
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me"
+                        name="remember-me"
+                        type="checkbox"
+                        @bind="rememberMe"
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer" />
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-700 cursor-pointer">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <div class="text-sm">
+                        <a href="#" class="font-medium text-blue-600 hover:text-blue-500 transition duration-200">
+                            Forgot password?
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    <button type="submit"
+                    disabled="@isLoading"
+                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 ease-in-out transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                        @if (isLoading)
+                        {
+                            <span>Loading...</span>
+                        }
+                        else
+                        {
+                            <span>Sign in</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+
+        <!-- Footer Text -->
+        <div class="text-center">
+            <p class="text-sm text-gray-600">
+                Don't have an account?
+                <a href="#" class="font-medium text-blue-600 hover:text-blue-500 transition duration-200">
+                    Contact administrator
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private LoginDTO loginModel { get; set; } = new LoginDTO { UserName = "", Password = "" };
+
+    private bool rememberMe = false;
+    private bool isLoading = false;
+    private string errorMessage = string.Empty;
+
+    private async Task HandleLogin()
+    {
+        // Clear previous error
+        errorMessage = string.Empty;
+        isLoading = true;
+
+        try
+        {
+            // Call API
+            var response = await AuthService.LoginAsync(loginModel);
+
+            if (response.IsSuccess && response.Data != null)
+            {
+                // Store token and user data
+                TokenStorage.SetAuthData(
+                    response.Data.Token,
+                    response.Data.UserId,
+                    response.Data.UserName,
+                    response.Data.ExpiresAt
+                );
+
+                // Simple navigation without forceLoad to avoid NavigationException
+                Navigation.NavigateTo("/", false);
+                return;
+            }
+            else
+            {
+                errorMessage = response.Message ?? "Login failed. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -1,1 +1,88 @@
 ﻿@import "tailwindcss";
+
+/* Custom Animations */
+@keyframes blob {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    25% {
+        transform: translate(20px, -20px) scale(1.1);
+    }
+    50% {
+        transform: translate(0, 20px) scale(1);
+    }
+    75% {
+        transform: translate(-20px, -10px) scale(0.9);
+    }
+}
+
+.animate-blob {
+    animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+/* Custom Scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.5);
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.7);
+}
+
+/* NavLink Styles */
+.nav-menu-item {
+    @apply relative flex items-center px-4 py-3 rounded-xl text-blue-100/80 hover:text-white transition-all duration-300 ease-in-out overflow-hidden;
+}
+
+.nav-menu-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: linear-gradient(to bottom, #60a5fa, #a78bfa);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.nav-menu-item:hover::before {
+    transform: scaleY(1);
+}
+
+.nav-menu-item.active {
+    @apply bg-gradient-to-r from-white/20 to-white/10 text-white font-semibold backdrop-blur-sm border border-white/20 shadow-lg;
+}
+
+.nav-menu-item.active::before {
+    transform: scaleY(1);
+}
+
+/* Glassmorphism Effect */
+.glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Gradient Text */
+.gradient-text {
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent;
+}

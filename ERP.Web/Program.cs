@@ -1,9 +1,23 @@
 using ERP.Web.Components;
+using ERP.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents();
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+// Configure HttpClient for API calls
+var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7001";
+builder.Services.AddHttpClient<AuthService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+
+// Register services - Use Singleton for TokenStorage to persist across page refresh
+// Note: In production, consider using ProtectedSessionStorage or Database for better security
+builder.Services.AddSingleton<TokenStorageService>();
 
 var app = builder.Build();
 
@@ -20,6 +34,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>();
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
 
 app.Run();

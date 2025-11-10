@@ -6,6 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ERP.ApplicationDTO\ERP.ApplicationDTO.csproj" />
+    <ProjectReference Include="..\ERP.Shared\ERP.Shared.csproj" />
+  </ItemGroup>
+
   <!-- Build Tailwind CSS before compiling -->
   <Target Name="BuildTailwindCSS" BeforeTargets="Build">
     <Exec Command="npm run build:css" />

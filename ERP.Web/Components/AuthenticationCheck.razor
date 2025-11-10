@@ -1,0 +1,23 @@
+@using ERP.Web.Services
+@inject TokenStorageService TokenStorage
+@inject NavigationManager Navigation
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Check if user is authenticated
+        if (!TokenStorage.IsAuthenticated())
+        {
+            // Redirect to login if not authenticated
+            Navigation.NavigateTo("/login");
+        }
+    }
+}
+
+@if (TokenStorage.IsAuthenticated())
+{
+    @ChildContent
+}
