@@ -48,7 +48,7 @@
 
 /* NavLink Styles */
 .nav-menu-item {
-    @apply relative flex items-center px-4 py-3 rounded-xl text-blue-100/80 hover:text-white transition-all duration-300 ease-in-out overflow-hidden;
+    @apply relative flex items-center px-4 py-3 rounded-xl text-gray-700 hover:bg-blue-50 transition-all duration-300 ease-in-out overflow-hidden;
 }
 
 .nav-menu-item::before {
@@ -58,7 +58,7 @@
     top: 0;
     height: 100%;
     width: 3px;
-    background: linear-gradient(to bottom, #60a5fa, #a78bfa);
+    background: linear-gradient(to bottom, #2563eb, #4f46e5);
     transform: scaleY(0);
     transition: transform 0.3s ease;
 }
@@ -68,11 +68,23 @@
 }
 
 .nav-menu-item.active {
-    @apply bg-gradient-to-r from-white/20 to-white/10 text-white font-semibold backdrop-blur-sm border border-white/20 shadow-lg;
+    @apply bg-white text-blue-600 font-semibold;
 }
 
 .nav-menu-item.active::before {
     transform: scaleY(1);
+}
+
+.nav-menu-item.active .w-10 {
+    @apply bg-blue-100;
+}
+
+.nav-menu-item.active svg {
+    @apply text-blue-600;
+}
+
+.nav-menu-item.active span {
+    @apply text-blue-600;
 }
 
 /* Glassmorphism Effect */
