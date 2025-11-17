@@ -15,6 +15,12 @@ builder.Services.AddHttpClient<AuthService>(client =>
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
+builder.Services.AddHttpClient<CompanyService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+
 // Register services - Use Singleton for TokenStorage to persist across page refresh
 // Note: In production, consider using ProtectedSessionStorage or Database for better security
 builder.Services.AddSingleton<TokenStorageService>();

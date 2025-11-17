@@ -49,3 +49,49 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+/* Navigation Menu Styles */
+.nav-menu-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    color: #374151;
+}
+
+.nav-menu-item:hover {
+    background-color: #F3F4F6;
+    color: #2563EB;
+}
+
+.nav-menu-item.active {
+    background: linear-gradient(to right, #3B82F6, #6366F1);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+.nav-menu-item.active .text-gray-600,
+.nav-menu-item.active .text-gray-700 {
+    color: white !important;
+}
+
+.nav-menu-item.active .bg-gray-100 {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Tailwind Animation */
+@keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+    animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
