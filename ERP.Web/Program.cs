@@ -24,9 +24,9 @@ builder.Services.AddSingleton<TokenStorageService>();
 // Register all API services
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CompanyService>();
+builder.Services.AddScoped<UserService>();
 // เพิ่ม services อื่นๆ ตรงนี้
 // builder.Services.AddScoped<BranchService>();
-// builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 

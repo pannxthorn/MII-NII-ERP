@@ -1,0 +1,182 @@
+@page "/user"
+@rendermode InteractiveServer
+@using ERP.Web.Services
+@using ERP.ApplicationDTO.users
+@using ERP.Web.Components.Shared
+@inject UserService UserService
+@inject NavigationManager Navigation
+
+<PageTitle>User Management</PageTitle>
+
+<MainListPage TItem="UserDTO"
+              Title="User Management"
+              Description="Manage system users and permissions"
+              Items="@users"
+              IsLoading="@isLoading"
+              ErrorMessage="@errorMessage"
+              EmptyStateTitle="No users found"
+              EmptyStateDescription="Get started by creating your first user."
+              ShowSearch="true"
+              SearchPlaceholder=""
+              ShowRefreshButton="true"
+              CreateButtonText="Add User"
+              OnRefresh="LoadUsers"
+              SearchFilter="@SearchUserFilter">
+
+    <TableHeader>
+        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            User Name
+        </th>
+        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            Company
+        </th>
+        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            Branch
+        </th>
+        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            Status
+        </th>
+        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            Actions
+        </th>
+    </TableHeader>
+
+    <TableRow Context="user">
+        <tr class="hover:bg-gray-50 transition-colors duration-150">
+            <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                    <div class="flex-shrink-0 h-8 w-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white text-xs font-bold">@GetUserInitials(user.UserName)</span>
+                    </div>
+                    <div class="text-sm font-medium text-gray-900">@(user.UserName ?? "-")</div>
+                </div>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+                <div class="text-sm text-gray-900">@(user.CompanyName ?? "-")</div>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+                <div class="text-sm text-gray-900">@(user.BranchName ?? "-")</div>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+                @if (user.IsActive && !user.IsDelete)
+                {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span class="w-1.5 h-1.5 mr-1.5 bg-green-600 rounded-full"></span>
+                        Active
+                    </span>
+                }
+                else
+                {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <span class="w-1.5 h-1.5 mr-1.5 bg-gray-600 rounded-full"></span>
+                        Inactive
+                    </span>
+                }
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+                <div class="flex items-center gap-1">
+                    <button @onclick="() => ViewUser(user.UserId)"
+                            class="text-blue-600 hover:text-blue-900 transition-colors duration-150 p-1 hover:bg-blue-50 rounded">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </button>
+                    <button @onclick="() => EditUser(user.UserId)"
+                            class="text-indigo-600 hover:text-indigo-900 transition-colors duration-150 p-1 hover:bg-indigo-50 rounded">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </button>
+                    <button @onclick="() => DeleteUser(user.UserId)"
+                            class="text-red-600 hover:text-red-900 transition-colors duration-150 p-1 hover:bg-red-50 rounded">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </TableRow>
+
+</MainListPage>
+
+@code {
+    private List<UserDTO>? users;
+    private bool isLoading = false;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        isLoading = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var response = await UserService.GetAllUsersAsync();
+
+            if (response.IsSuccess && response.Data != null)
+            {
+                users = response.Data;
+            }
+            else
+            {
+                errorMessage = response.Message ?? "Failed to load users.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private bool SearchUserFilter(UserDTO user, string searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+            return true;
+
+        searchText = searchText.ToLower();
+
+        return (user.UserName != null && user.UserName.ToLower().Contains(searchText)) ||
+               (user.CompanyName != null && user.CompanyName.ToLower().Contains(searchText)) ||
+               (user.BranchName != null && user.BranchName.ToLower().Contains(searchText));
+    }
+
+    private string GetUserInitials(string? userName)
+    {
+        if (string.IsNullOrEmpty(userName))
+            return "U";
+
+        var parts = userName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2)
+            return (parts[0][0].ToString() + parts[1][0].ToString()).ToUpper();
+
+        return userName.Substring(0, Math.Min(2, userName.Length)).ToUpper();
+    }
+
+    private void ViewUser(string userId)
+    {
+        Navigation.NavigateTo($"/user/info/{userId}");
+    }
+
+    private void EditUser(string userId)
+    {
+        Navigation.NavigateTo($"/user/edit/{userId}");
+    }
+
+    private void DeleteUser(string userId)
+    {
+        // TODO: Implement delete functionality with confirmation dialog
+    }
+}

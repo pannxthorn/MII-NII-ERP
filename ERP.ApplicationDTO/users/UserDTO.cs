@@ -12,7 +12,9 @@ namespace ERP.ApplicationDTO.users
     {
         public string UserId { get; set; } = string.Empty; // UserId (Primary key)
         public string? CompanyId { get; set; } // CompanyId
+        public string? CompanyName { get; set; }
         public string? BranchId { get; set; } // BranchId
+        public string? BranchName { get; set; }
         public string? UserName { get; set; } // UserName (length: 100)
         public string? Comment { get; set; } // Comment (length: 4000)
         public bool IsActive { get; set; } // IsActive
