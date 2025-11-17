@@ -12,9 +12,9 @@ namespace ERP.Web.Services
         private readonly HttpClient _httpClient;
         private readonly ILogger<AuthService> _logger;
 
-        public AuthService(HttpClient httpClient, ILogger<AuthService> logger)
+        public AuthService(IHttpClientFactory httpClientFactory, ILogger<AuthService> logger)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient("ApiClient");
             _logger = logger;
         }
 

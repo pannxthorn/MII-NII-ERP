@@ -14,9 +14,9 @@ namespace ERP.Web.Services
         private readonly ILogger<CompanyService> _logger;
         private readonly TokenStorageService _tokenStorage;
 
-        public CompanyService(HttpClient httpClient, ILogger<CompanyService> logger, TokenStorageService tokenStorage)
+        public CompanyService(IHttpClientFactory httpClientFactory, ILogger<CompanyService> logger, TokenStorageService tokenStorage)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient("ApiClient");
             _logger = logger;
             _tokenStorage = tokenStorage;
         }

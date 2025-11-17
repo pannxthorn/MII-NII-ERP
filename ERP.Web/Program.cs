@@ -9,13 +9,9 @@ builder.Services.AddRazorComponents()
 
 // Configure HttpClient for API calls
 var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7001";
-builder.Services.AddHttpClient<AuthService>(client =>
-{
-    client.BaseAddress = new Uri(apiBaseUrl);
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-});
 
-builder.Services.AddHttpClient<CompanyService>(client =>
+// Register a single named HttpClient for all API services
+builder.Services.AddHttpClient("ApiClient", client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
     client.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -24,6 +20,13 @@ builder.Services.AddHttpClient<CompanyService>(client =>
 // Register services - Use Singleton for TokenStorage to persist across page refresh
 // Note: In production, consider using ProtectedSessionStorage or Database for better security
 builder.Services.AddSingleton<TokenStorageService>();
+
+// Register all API services
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<CompanyService>();
+// เพิ่ม services อื่นๆ ตรงนี้
+// builder.Services.AddScoped<BranchService>();
+// builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 

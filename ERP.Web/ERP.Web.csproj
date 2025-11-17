@@ -11,6 +11,10 @@
     <ProjectReference Include="..\ERP.Shared\ERP.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\Pages\Company\InfoPage\" />
+  </ItemGroup>
+
   <!-- Build Tailwind CSS before compiling -->
   <Target Name="BuildTailwindCSS" BeforeTargets="Build">
     <Exec Command="npm run build:css" />
