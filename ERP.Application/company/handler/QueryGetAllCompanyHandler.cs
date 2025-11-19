@@ -1,18 +1,14 @@
 ﻿using AutoMapper;
 using ERP.Application.company.queries;
+using ERP.Application.Extensions;
 using ERP.Application.unitofwork;
+using ERP.ApplicationDTO.branch;
 using ERP.ApplicationDTO.company;
-using ERP.ApplicationDTO.users;
 using ERP.Domain.entities;
 using ERP.Shared.encryptservice;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ERP.ApplicationDTO.branch;
+using Microsoft.Extensions.Logging;
 
 namespace ERP.Application.company.handler
 {
@@ -21,11 +17,14 @@ namespace ERP.Application.company.handler
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHashIdService _hashId;
-        public QueryGetAllCompanyHandler(IUnitOfWork unitOfWork, IMapper mapper, IHashIdService hashId)
+        private readonly ILogger<QueryGetAllCompanyHandler> _logger;
+
+        public QueryGetAllCompanyHandler(IUnitOfWork unitOfWork, IMapper mapper, IHashIdService hashId, ILogger<QueryGetAllCompanyHandler> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hashId = hashId;
+            _logger = logger;
         }
         public async Task<List<CompanyDTO>> Handle(QueryGetAllCompany request, CancellationToken cancellationToken)
         {
@@ -37,18 +36,17 @@ namespace ERP.Application.company.handler
                 foreach (var company in companys)
                 {
                     var companyDTO = _mapper.Map<Company, CompanyDTO>(company);
-                    companyDTO.CompanyId = _hashId.EncodeId(company.CompanyId);
-                    companyDTO.Created_By_Id = _hashId.EncodeId(company.Created_By_Id);
-                    companyDTO.Last_Update_By_Id = _hashId.EncodeId(company.Last_Update_By_Id);
+
+                    // Use extension method to encode all ID fields
+                    companyDTO.EncodeIds(_hashId, company);
 
                     var listBranchDTO = new List<BranchDTO>();
                     foreach (var branch in company.Branches)
                     {
                         var branchDTO = _mapper.Map<Branch, BranchDTO>(branch);
-                        branchDTO.BranchId = _hashId.EncodeId(branch.BranchId);
-                        branchDTO.CompanyId = _hashId.EncodeId(branch.CompanyId);
-                        branchDTO.Created_By_Id = _hashId.EncodeId(branch.Created_By_Id);
-                        branchDTO.Last_Update_By_Id = _hashId.EncodeId(branch.Last_Update_By_Id);
+
+                        // Use extension method to encode all ID fields
+                        branchDTO.EncodeIds(_hashId, branch);
 
                         listBranchDTO.Add(branchDTO);
                     }
@@ -59,7 +57,7 @@ namespace ERP.Application.company.handler
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                _logger.LogError(ex, "Error getting all companies");
             }
 
             return listCompany;

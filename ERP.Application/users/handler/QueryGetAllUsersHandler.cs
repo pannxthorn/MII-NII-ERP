@@ -1,15 +1,12 @@
 ﻿using AutoMapper;
+using ERP.Application.Extensions;
 using ERP.Application.unitofwork;
 using ERP.ApplicationDTO.users;
 using ERP.Domain.entities;
 using ERP.Shared.encryptservice;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace ERP.Application.users
 {
@@ -18,11 +15,14 @@ namespace ERP.Application.users
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHashIdService _hashId;
-        public QueryGetAllUsersHandler(IUnitOfWork unitOfWork, IMapper mapper, IHashIdService hashId)
+        private readonly ILogger<QueryGetAllUsersHandler> _logger;
+
+        public QueryGetAllUsersHandler(IUnitOfWork unitOfWork, IMapper mapper, IHashIdService hashId, ILogger<QueryGetAllUsersHandler> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hashId = hashId;
+            _logger = logger;
         }
         public async Task<List<UserDTO>> Handle(QueryGetAllUsers request, CancellationToken cancellationToken)
         {
@@ -35,9 +35,10 @@ namespace ERP.Application.users
                 foreach (var u in users)
                 {
                     var userDTO = _mapper.Map<User, UserDTO>(u);
-                    userDTO.UserId = _hashId.EncodeId(u.UserId);
-                    userDTO.CompanyId = u.CompanyId != null ? _hashId.EncodeId(u.CompanyId.GetValueOrDefault()) : null;
-                    userDTO.BranchId = u.BranchId != null ? _hashId.EncodeId(u.BranchId.GetValueOrDefault()) : null;
+
+                    // Use extension method to encode all ID fields
+                    userDTO.EncodeIds(_hashId, u);
+
                     if (u.Company != null)
                     {
                         var branch = u.Company.Branches.FirstOrDefault(f => f.BranchId == u.BranchId);
@@ -49,15 +50,12 @@ namespace ERP.Application.users
                         userDTO.CompanyName = u.Company.CompanyName;
                     }
 
-                    userDTO.Created_By_Id = _hashId.EncodeId(u.Created_By_Id);
-                    userDTO.Last_Update_By_Id = _hashId.EncodeId(u.Last_Update_By_Id);
-
                     listUser.Add(userDTO);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                _logger.LogError(ex, "Error getting all users");
             }
 
             return listUser;

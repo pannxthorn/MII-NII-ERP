@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
+using ERP.Application.Extensions;
 using ERP.Application.unitofwork;
 using ERP.ApplicationDTO.users;
 using ERP.Domain.entities;
 using ERP.Shared.encryptservice;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace ERP.Application.users
 {
@@ -17,11 +14,14 @@ namespace ERP.Application.users
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHashIdService _hashId;
-        public QueryGetUserByIdHandler(IUnitOfWork unitOfWork, IMapper mapper, IHashIdService hashId)
+        private readonly ILogger<QueryGetUserByIdHandler> _logger;
+
+        public QueryGetUserByIdHandler(IUnitOfWork unitOfWork, IMapper mapper, IHashIdService hashId, ILogger<QueryGetUserByIdHandler> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hashId = hashId;
+            _logger = logger;
         }
         public async Task<UserDTO> Handle(QueryGetUserById request, CancellationToken cancellationToken)
         {
@@ -30,15 +30,13 @@ namespace ERP.Application.users
             {
                 var userModel = await _unitOfWork.Users.GetAsync(_hashId.DecodeToInt(request.Id));
                 user = _mapper.Map<User, UserDTO>(userModel);
-                user.UserId = _hashId.EncodeId(userModel.UserId);
-                user.CompanyId = userModel.CompanyId != null ? _hashId.EncodeId(userModel.CompanyId.GetValueOrDefault()) : null;
-                user.BranchId = userModel.BranchId != null ? _hashId.EncodeId(userModel.BranchId.GetValueOrDefault()) : null;
-                user.Created_By_Id = _hashId.EncodeId(userModel.Created_By_Id);
-                user.Last_Update_By_Id = _hashId.EncodeId(userModel.Last_Update_By_Id);
+
+                // Use extension method to encode all ID fields
+                user.EncodeIds(_hashId, userModel);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                _logger.LogError(ex, "Error getting user by ID: {UserId}", request.Id);
             }
             return user;
         }

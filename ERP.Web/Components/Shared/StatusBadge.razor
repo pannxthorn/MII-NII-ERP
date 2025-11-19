@@ -1,0 +1,32 @@
+@* Status Badge Component - Reusable status indicator *@
+
+@if (IsActive && !IsDeleted)
+{
+    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium @ActiveBgClass @ActiveTextClass">
+        <span class="w-1.5 h-1.5 mr-1.5 @ActiveDotClass rounded-full"></span>
+        @ActiveText
+    </span>
+}
+else
+{
+    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium @InactiveBgClass @InactiveTextClass">
+        <span class="w-1.5 h-1.5 mr-1.5 @InactiveDotClass rounded-full"></span>
+        @InactiveText
+    </span>
+}
+
+@code {
+    [Parameter] public bool IsActive { get; set; }
+    [Parameter] public bool IsDeleted { get; set; }
+
+    [Parameter] public string ActiveText { get; set; } = "Active";
+    [Parameter] public string InactiveText { get; set; } = "Inactive";
+
+    [Parameter] public string ActiveBgClass { get; set; } = "bg-green-100";
+    [Parameter] public string ActiveTextClass { get; set; } = "text-green-800";
+    [Parameter] public string ActiveDotClass { get; set; } = "bg-green-600";
+
+    [Parameter] public string InactiveBgClass { get; set; } = "bg-gray-100";
+    [Parameter] public string InactiveTextClass { get; set; } = "text-gray-800";
+    [Parameter] public string InactiveDotClass { get; set; } = "bg-gray-600";
+}
