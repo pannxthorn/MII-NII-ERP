@@ -1,4 +1,5 @@
 using ERP.ApplicationDTO.company;
+using ERP.Shared._base;
 using ERP.Shared._base.BaseResponse;
 
 namespace ERP.Web.Services
@@ -14,11 +15,13 @@ namespace ERP.Web.Services
         }
 
         /// <summary>
-        /// Get all companies
+        /// Get all companies with pagination
         /// </summary>
-        public async Task<BaseResponse<List<CompanyDTO>>> GetAllCompanyAsync()
+        public async Task<BaseResponse<PaginatedResponse<CompanyDTO>>> GetAllCompanyAsync(int pageNumber = 1, int pageSize = 10)
         {
-            return await ExecuteGetAsync<List<CompanyDTO>>("api/Company/GetAllCompany", unwrapDirectResponse: true);
+            return await ExecuteGetAsync<PaginatedResponse<CompanyDTO>>(
+                $"api/Company/GetAllCompany?pageNumber={pageNumber}&pageSize={pageSize}",
+                unwrapDirectResponse: true);
         }
 
         /// <summary>

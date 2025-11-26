@@ -3,6 +3,7 @@
 @using ERP.Web.Services
 @using ERP.ApplicationDTO.users
 @using ERP.Web.Components.Shared
+@using ERP.Shared._base
 @inject UserService UserService
 @inject NavigationManager Navigation
 
@@ -11,17 +12,20 @@
 <MainListPage TItem="UserDTO"
               Title="User Management"
               Description="Manage system users and permissions"
-              Items="@users"
+              PaginationData="@paginationData"
               IsLoading="@isLoading"
               ErrorMessage="@errorMessage"
               EmptyStateTitle="No users found"
               EmptyStateDescription="Get started by creating your first user."
-              ShowSearch="true"
+              ShowSearch="false"
               SearchPlaceholder=""
               ShowRefreshButton="true"
               CreateButtonText="Add User"
               OnRefresh="LoadUsers"
-              SearchFilter="@SearchUserFilter">
+              OnPageChanged="HandlePageChanged"
+              OnPageSizeChanged="HandlePageSizeChanged"
+              ShowPageSizeSelector="true"
+              PageSizeOptions="@(new[] { 10, 25, 50, 100, 1000, 10000})">
 
     <TableHeader>
         <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -61,10 +65,9 @@
                 <StatusBadge IsActive="@user.IsActive" IsDeleted="@user.IsDelete" />
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
-                <ActionButtons
-                    OnView="() => ViewUser(user.UserId)"
-                    OnEdit="() => EditUser(user.UserId)"
-                    OnDelete="() => DeleteUser(user.UserId)" />
+                <ActionButtons OnView="() => ViewUser(user.UserId)"
+                               OnEdit="() => EditUser(user.UserId)"
+                               OnDelete="() => DeleteUser(user.UserId)" />
             </td>
         </tr>
     </TableRow>
@@ -72,9 +75,11 @@
 </MainListPage>
 
 @code {
-    private List<UserDTO>? users;
+    private PaginatedResponse<UserDTO>? paginationData;
     private bool isLoading = false;
     private string errorMessage = string.Empty;
+    private int currentPage = 1;
+    private int pageSize = 10;
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,11 +94,11 @@
 
         try
         {
-            var response = await UserService.GetAllUsersAsync();
+            var response = await UserService.GetAllUsersAsync(currentPage, pageSize);
 
             if (response.IsSuccess && response.Data != null)
             {
-                users = response.Data;
+                paginationData = response.Data;
             }
             else
             {
@@ -111,16 +116,17 @@
         }
     }
 
-    private bool SearchUserFilter(UserDTO user, string searchText)
+    private async Task HandlePageChanged(int newPage)
     {
-        if (string.IsNullOrWhiteSpace(searchText))
-            return true;
+        currentPage = newPage;
+        await LoadUsers();
+    }
 
-        searchText = searchText.ToLower();
-
-        return (user.UserName != null && user.UserName.ToLower().Contains(searchText)) ||
-               (user.CompanyName != null && user.CompanyName.ToLower().Contains(searchText)) ||
-               (user.BranchName != null && user.BranchName.ToLower().Contains(searchText));
+    private async Task HandlePageSizeChanged(int newPageSize)
+    {
+        pageSize = newPageSize;
+        currentPage = 1; // Reset to first page when changing page size
+        await LoadUsers();
     }
 
     private string GetUserInitials(string? userName)

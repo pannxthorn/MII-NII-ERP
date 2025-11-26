@@ -3,6 +3,7 @@
 @using ERP.Web.Services
 @using ERP.ApplicationDTO.company
 @using ERP.Web.Components.Shared
+@using ERP.Shared._base
 @inject CompanyService CompanyService
 @inject NavigationManager Navigation
 
@@ -11,17 +12,20 @@
 <MainListPage TItem="CompanyDTO"
               Title="Company Management"
               Description="Manage your company information and settings"
-              Items="@companies"
+              PaginationData="@paginationData"
               IsLoading="@isLoading"
               ErrorMessage="@errorMessage"
               EmptyStateTitle="No companies found"
               EmptyStateDescription="Get started by creating your first company."
-              ShowSearch="true"
+              ShowSearch="false"
               SearchPlaceholder="Search..."
               ShowRefreshButton="true"
               CreateButtonText="Add Company"
               OnRefresh="LoadCompanies"
-              SearchFilter="@SearchCompanyFilter">
+              OnPageChanged="HandlePageChanged"
+              OnPageSizeChanged="HandlePageSizeChanged"
+              ShowPageSizeSelector="true"
+              PageSizeOptions="@(new[] { 10, 25, 50, 100, 1000, 10000})">
 
     <TableHeader>
         <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -89,9 +93,11 @@
 </MainListPage>
 
 @code {
-    private List<CompanyDTO>? companies;
+    private PaginatedResponse<CompanyDTO>? paginationData;
     private bool isLoading = false;
     private string errorMessage = string.Empty;
+    private int currentPage = 1;
+    private int pageSize = 10;
 
     protected override async Task OnInitializedAsync()
     {
@@ -106,11 +112,11 @@
 
         try
         {
-            var response = await CompanyService.GetAllCompanyAsync();
+            var response = await CompanyService.GetAllCompanyAsync(currentPage, pageSize);
 
             if (response.IsSuccess && response.Data != null)
             {
-                companies = response.Data;
+                paginationData = response.Data;
             }
             else
             {
@@ -128,18 +134,17 @@
         }
     }
 
-    private bool SearchCompanyFilter(CompanyDTO company, string searchText)
+    private async Task HandlePageChanged(int newPage)
     {
-        if (string.IsNullOrWhiteSpace(searchText))
-            return true;
+        currentPage = newPage;
+        await LoadCompanies();
+    }
 
-        searchText = searchText.ToLower();
-
-        return company.CompanyCode.ToLower().Contains(searchText) ||
-               company.CompanyName.ToLower().Contains(searchText) ||
-               (company.TaxNo != null && company.TaxNo.ToLower().Contains(searchText)) ||
-               (company.Email != null && company.Email.ToLower().Contains(searchText)) ||
-               (company.Phone != null && company.Phone.ToLower().Contains(searchText));
+    private async Task HandlePageSizeChanged(int newPageSize)
+    {
+        pageSize = newPageSize;
+        currentPage = 1; // Reset to first page when changing page size
+        await LoadCompanies();
     }
 
     private void ViewCompany(string companyId)

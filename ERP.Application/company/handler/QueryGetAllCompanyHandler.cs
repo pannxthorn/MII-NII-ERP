@@ -5,14 +5,16 @@ using ERP.Application.unitofwork;
 using ERP.ApplicationDTO.branch;
 using ERP.ApplicationDTO.company;
 using ERP.Domain.entities;
+using ERP.Shared._base;
 using ERP.Shared.encryptservice;
+using ERP.Shared.Extensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace ERP.Application.company.handler
 {
-    public class QueryGetAllCompanyHandler : IRequestHandler<QueryGetAllCompany, List<CompanyDTO>>
+    public class QueryGetAllCompanyHandler : IRequestHandler<QueryGetAllCompany, PaginatedResponse<CompanyDTO>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -26,41 +28,54 @@ namespace ERP.Application.company.handler
             _hashId = hashId;
             _logger = logger;
         }
-        public async Task<List<CompanyDTO>> Handle(QueryGetAllCompany request, CancellationToken cancellationToken)
+        public async Task<PaginatedResponse<CompanyDTO>> Handle(QueryGetAllCompany request, CancellationToken cancellationToken)
         {
-            var listCompany = new List<CompanyDTO>();
             try
             {
-                var companys = await _unitOfWork.Company.GetManyAsync(f => f.IsActive && !f.IsDelete, i => i.Include(s => s.Branches),
-                                                                            asNoTracking: true, useSplitQuery: true);
-                foreach (var company in companys)
-                {
-                    var companyDTO = _mapper.Map<Company, CompanyDTO>(company);
+                var query = _unitOfWork.Company.GetQueryable(
+                    filter: f => f.IsActive && !f.IsDelete,
+                    include: i => i.Include(s => s.Branches),
+                    asNoTracking: true
+                );
 
-                    // Use extension method to encode all ID fields
-                    companyDTO.EncodeIds(_hashId, company);
-
-                    var listBranchDTO = new List<BranchDTO>();
-                    foreach (var branch in company.Branches)
+                // Apply pagination using extension method
+                var result = await query.ToPaginatedResponseAsync(
+                    request.PaginationRequest,
+                    (company) =>
                     {
-                        var branchDTO = _mapper.Map<Branch, BranchDTO>(branch);
+                        var companyDTO = _mapper.Map<Company, CompanyDTO>(company);
 
                         // Use extension method to encode all ID fields
-                        branchDTO.EncodeIds(_hashId, branch);
+                        companyDTO.EncodeIds(_hashId, company);
 
-                        listBranchDTO.Add(branchDTO);
+                        var listBranchDTO = new List<BranchDTO>();
+                        foreach (var branch in company.Branches)
+                        {
+                            var branchDTO = _mapper.Map<Branch, BranchDTO>(branch);
+
+                            // Use extension method to encode all ID fields
+                            branchDTO.EncodeIds(_hashId, branch);
+
+                            listBranchDTO.Add(branchDTO);
+                        }
+
+                        companyDTO.BranchDTOs = listBranchDTO;
+                        return companyDTO;
                     }
+                );
 
-                    companyDTO.BranchDTOs = listBranchDTO;
-                    listCompany.Add(companyDTO);
-                }
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting all companies");
+                _logger.LogError(ex, "Error getting paginated companies");
+                return new PaginatedResponse<CompanyDTO>(
+                    new List<CompanyDTO>(),
+                    0,
+                    request.PaginationRequest.PageNumber,
+                    request.PaginationRequest.PageSize
+                );
             }
-
-            return listCompany;
         }
     }
 }

@@ -88,6 +88,28 @@ namespace ERP.Infrastructure.repositories
             return await _dbSet.Where(predicate).Select(selector).ToListAsync();
         }
 
+        public IQueryable<T> GetQueryable(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null, bool asNoTracking = true)
+        {
+            IQueryable<T> query = _dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            if (include != null)
+            {
+                query = include(query);
+            }
+
+            if (asNoTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
+            return query;
+        }
+
         #endregion [Get Data]
 
         #region [Any]

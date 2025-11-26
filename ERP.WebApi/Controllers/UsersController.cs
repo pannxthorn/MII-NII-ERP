@@ -1,5 +1,6 @@
 ﻿using ERP.Application.users;
 using ERP.ApplicationDTO.users;
+using ERP.Shared._base;
 using ERP.Shared._base.BaseResponse;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -17,10 +18,11 @@ namespace ERP.WebApi.Controllers
 
         [HttpGet]
         [Route("GetAllUsers")]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var users = await _mediator.Send(new QueryGetAllUsers());
-            return Ok(users);
+            var paginationRequest = new PaginationRequest(pageNumber, pageSize);
+            var result = await _mediator.Send(new QueryGetAllUsers(paginationRequest));
+            return Ok(result);
         }
 
         [HttpGet]

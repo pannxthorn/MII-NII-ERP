@@ -1,4 +1,5 @@
 using ERP.ApplicationDTO.users;
+using ERP.Shared._base;
 using ERP.Shared._base.BaseResponse;
 
 namespace ERP.Web.Services
@@ -14,11 +15,13 @@ namespace ERP.Web.Services
         }
 
         /// <summary>
-        /// Get all users
+        /// Get all users with pagination
         /// </summary>
-        public async Task<BaseResponse<List<UserDTO>>> GetAllUsersAsync()
+        public async Task<BaseResponse<PaginatedResponse<UserDTO>>> GetAllUsersAsync(int pageNumber = 1, int pageSize = 10)
         {
-            return await ExecuteGetAsync<List<UserDTO>>("api/Users/GetAllUsers", unwrapDirectResponse: true);
+            return await ExecuteGetAsync<PaginatedResponse<UserDTO>>(
+                $"api/Users/GetAllUsers?pageNumber={pageNumber}&pageSize={pageSize}",
+                unwrapDirectResponse: true);
         }
 
         /// <summary>

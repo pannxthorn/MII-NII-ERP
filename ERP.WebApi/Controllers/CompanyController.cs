@@ -2,6 +2,7 @@
 using ERP.Application.company.queries;
 using ERP.Application.users;
 using ERP.ApplicationDTO.company;
+using ERP.Shared._base;
 using ERP.Shared._base.BaseResponse;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -19,10 +20,11 @@ namespace ERP.WebApi.Controllers
 
         [HttpGet]
         [Route("GetAllCompany")]
-        public async Task<IActionResult> GettAllCompany()
+        public async Task<IActionResult> GettAllCompany([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var users = await _mediator.Send(new QueryGetAllCompany());
-            return Ok(users);
+            var paginationRequest = new PaginationRequest(pageNumber, pageSize);
+            var result = await _mediator.Send(new QueryGetAllCompany(paginationRequest));
+            return Ok(result);
         }
 
         [HttpGet]

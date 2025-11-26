@@ -19,6 +19,7 @@ namespace ERP.Application.repositories
         Task<IEnumerable<T>> GetManyAsync(Expression<Func<T, bool>> predicate);
         Task<IEnumerable<T>> GetManyAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>>? includes = null, bool asNoTracking = true, bool useSplitQuery = true);
         Task<IEnumerable<TResult>> GetManyAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector);
+        IQueryable<T> GetQueryable(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null, bool asNoTracking = true);
 
         // Command Methods
         Task AddAsync(T entity);

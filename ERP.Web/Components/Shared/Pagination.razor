@@ -1,0 +1,206 @@
+@if (TotalPages > 0)
+{
+    <div class="bg-gray-50 px-4 py-3 border-t border-gray-200">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <!-- Info Section -->
+            <div class="flex items-center gap-4">
+                <div class="text-sm text-gray-700">
+                    Showing <span class="font-medium">@StartItem</span> to <span class="font-medium">@EndItem</span> of <span class="font-medium">@TotalCount</span> results
+                </div>
+
+                <!-- Page Size Selector -->
+                @if (ShowPageSizeSelector)
+                {
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500 font-medium">Show:</span>
+                        <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
+                            @foreach (var size in PageSizeOptions)
+                            {
+                                <button @onclick="() => ChangePageSize(size)"
+                                        class="@GetPageSizeButtonClass(size)">
+                                    @size
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination Buttons -->
+            <div class="flex items-center gap-1">
+                <!-- First Page -->
+                <button @onclick="() => GoToPage(1)"
+                        disabled="@(!HasPreviousPage)"
+                        class="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        title="First page">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Previous Page -->
+                <button @onclick="GoToPreviousPage"
+                        disabled="@(!HasPreviousPage)"
+                        class="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        title="Previous page">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Page Numbers -->
+                @foreach (var pageNum in GetVisiblePages())
+                {
+                    @if (pageNum == -1)
+                    {
+                        <span class="px-3 py-1.5 text-sm text-gray-500">...</span>
+                    }
+                    else
+                    {
+                        <button @onclick="() => GoToPage(pageNum)"
+                                class="@GetPageButtonClass(pageNum)">
+                            @pageNum
+                        </button>
+                    }
+                }
+
+                <!-- Next Page -->
+                <button @onclick="GoToNextPage"
+                        disabled="@(!HasNextPage)"
+                        class="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        title="Next page">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+
+                <!-- Last Page -->
+                <button @onclick="() => GoToPage(TotalPages)"
+                        disabled="@(!HasNextPage)"
+                        class="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        title="Last page">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int CurrentPage { get; set; } = 1;
+    [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public int TotalCount { get; set; }
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+    [Parameter] public EventCallback<int> OnPageSizeChanged { get; set; }
+    [Parameter] public bool ShowPageSizeSelector { get; set; } = true;
+    [Parameter] public int[] PageSizeOptions { get; set; } = new[] { 10, 25, 50, 100 };
+    [Parameter] public int MaxVisiblePages { get; set; } = 7;
+
+    private async Task ChangePageSize(int newSize)
+    {
+        if (newSize != PageSize)
+        {
+            await OnPageSizeChanged.InvokeAsync(newSize);
+        }
+    }
+
+    private string GetPageSizeButtonClass(int size)
+    {
+        var baseClass = "px-3 py-1 text-xs font-medium rounded-md transition-all duration-200";
+        if (size == PageSize)
+        {
+            return $"{baseClass} bg-white text-blue-600 shadow-sm";
+        }
+        return $"{baseClass} text-gray-600 hover:text-gray-900";
+    }
+
+    private int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
+    private bool HasPreviousPage => CurrentPage > 1;
+    private bool HasNextPage => CurrentPage < TotalPages;
+    private int StartItem => TotalCount == 0 ? 0 : ((CurrentPage - 1) * PageSize) + 1;
+    private int EndItem => Math.Min(CurrentPage * PageSize, TotalCount);
+
+    private async Task GoToPage(int page)
+    {
+        if (page >= 1 && page <= TotalPages && page != CurrentPage)
+        {
+            await OnPageChanged.InvokeAsync(page);
+        }
+    }
+
+    private async Task GoToPreviousPage()
+    {
+        if (HasPreviousPage)
+        {
+            await GoToPage(CurrentPage - 1);
+        }
+    }
+
+    private async Task GoToNextPage()
+    {
+        if (HasNextPage)
+        {
+            await GoToPage(CurrentPage + 1);
+        }
+    }
+
+    private string GetPageButtonClass(int page)
+    {
+        var baseClass = "px-3 py-1.5 text-sm border rounded-md transition-colors";
+        if (page == CurrentPage)
+        {
+            return $"{baseClass} bg-blue-600 text-white border-blue-600 font-medium";
+        }
+        return $"{baseClass} border-gray-300 hover:bg-gray-100";
+    }
+
+    private List<int> GetVisiblePages()
+    {
+        var pages = new List<int>();
+
+        if (TotalPages <= MaxVisiblePages)
+        {
+            // Show all pages if total is less than max
+            for (int i = 1; i <= TotalPages; i++)
+            {
+                pages.Add(i);
+            }
+        }
+        else
+        {
+            // Always show first page
+            pages.Add(1);
+
+            var startPage = Math.Max(2, CurrentPage - 2);
+            var endPage = Math.Min(TotalPages - 1, CurrentPage + 2);
+
+            // Add ellipsis after first page if needed
+            if (startPage > 2)
+            {
+                pages.Add(-1); // -1 represents ellipsis
+            }
+
+            // Add pages around current page
+            for (int i = startPage; i <= endPage; i++)
+            {
+                pages.Add(i);
+            }
+
+            // Add ellipsis before last page if needed
+            if (endPage < TotalPages - 1)
+            {
+                pages.Add(-1); // -1 represents ellipsis
+            }
+
+            // Always show last page
+            if (TotalPages > 1)
+            {
+                pages.Add(TotalPages);
+            }
+        }
+
+        return pages;
+    }
+}

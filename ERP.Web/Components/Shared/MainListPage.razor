@@ -1,4 +1,6 @@
 @typeparam TItem
+@using ERP.Shared._base
+@using Microsoft.AspNetCore.Components.Web.Virtualization
 
 <div class="w-full">
     <!-- Header Section -->
@@ -96,32 +98,36 @@
     }
     else
     {
-        <!-- Data Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="overflow-x-auto">
+        <!-- Data Table with Virtualization -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col" style="max-height: calc(100vh - 280px);">
+            <div class="overflow-auto flex-1" @ref="scrollContainer">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-gray-50 sticky top-0 z-10">
                         <tr>
                             @TableHeader
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach (var item in FilteredItems)
-                        {
+                        <Virtualize Items="@FilteredItems?.ToList()" Context="item" OverscanCount="10">
                             @TableRow(item)
-                        }
+                        </Virtualize>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Pagination (Optional - can be added later) -->
-            <div class="bg-gray-50 px-4 py-2 border-t border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div class="text-xs text-gray-600">
-                        Showing <span class="font-medium">@FilteredItems.Count()</span> results
-                    </div>
+            <!-- Pagination -->
+            @if (PaginationData != null && PaginationData.TotalPages > 0)
+            {
+                <div class="border-t border-gray-200">
+                    <Pagination CurrentPage="@PaginationData.PageNumber"
+                               PageSize="@PaginationData.PageSize"
+                               TotalCount="@PaginationData.TotalCount"
+                               OnPageChanged="@HandlePageChanged"
+                               OnPageSizeChanged="@HandlePageSizeChanged"
+                               ShowPageSizeSelector="@ShowPageSizeSelector"
+                               PageSizeOptions="@PageSizeOptions" />
                 </div>
-            </div>
+            }
         </div>
     }
 </div>
@@ -144,6 +150,13 @@
     [Parameter] public bool IsLoading { get; set; } = false;
     [Parameter] public string ErrorMessage { get; set; } = string.Empty;
 
+    // Pagination Parameters
+    [Parameter] public PaginatedResponse<TItem>? PaginationData { get; set; }
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+    [Parameter] public EventCallback<int> OnPageSizeChanged { get; set; }
+    [Parameter] public bool ShowPageSizeSelector { get; set; } = true;
+    [Parameter] public int[] PageSizeOptions { get; set; } = new[] { 10, 25, 50, 100 };
+
     // Events
     [Parameter] public EventCallback OnRefresh { get; set; }
     [Parameter] public EventCallback CreateButton { get; set; }
@@ -151,10 +164,16 @@
 
     // Private Fields
     private string searchText = string.Empty;
+    private ElementReference scrollContainer;
     private IEnumerable<TItem>? FilteredItems => GetFilteredItems();
 
     private IEnumerable<TItem>? GetFilteredItems()
     {
+        // When using pagination, items come from PaginationData
+        if (PaginationData != null)
+            return PaginationData.Items;
+
+        // Fallback to old behavior for non-paginated lists
         if (Items == null)
             return null;
 
@@ -184,5 +203,21 @@
     {
         // Trigger re-render by accessing FilteredItems
         StateHasChanged();
+    }
+
+    private async Task HandlePageChanged(int newPage)
+    {
+        if (OnPageChanged.HasDelegate)
+        {
+            await OnPageChanged.InvokeAsync(newPage);
+        }
+    }
+
+    private async Task HandlePageSizeChanged(int newPageSize)
+    {
+        if (OnPageSizeChanged.HasDelegate)
+        {
+            await OnPageSizeChanged.InvokeAsync(newPageSize);
+        }
     }
 }
