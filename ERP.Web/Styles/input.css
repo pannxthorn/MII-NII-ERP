@@ -28,9 +28,42 @@
     animation-delay: 4s;
 }
 
-/* Custom Scrollbar */
+/* Modern Minimal Scrollbar - Global */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: all 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.5);
+    background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Custom Scrollbar for specific elements */
 .scrollbar-thin::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -38,12 +71,21 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(59, 130, 246, 0.5);
-    border-radius: 3px;
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 10px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgba(59, 130, 246, 0.7);
+    background: rgba(100, 116, 139, 0.5);
+}
+
+/* Scrollbar for dark backgrounds */
+.scrollbar-dark::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.scrollbar-dark::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 /* NavLink Styles */
