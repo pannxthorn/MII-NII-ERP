@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@implements IDisposable
 
 <AuthenticationCheck>
 <div class="flex h-screen bg-gray-50">
@@ -14,9 +16,9 @@
                 <div class="flex items-center space-x-4">
                     <div>
                         <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                            Dashboard
+                            @currentPageTitle
                         </h1>
-                        <p class="text-xs text-gray-500 mt-0.5">Welcome back to your workspace</p>
+                        <p class="text-xs text-gray-500 mt-0.5">@currentPageDescription</p>
                     </div>
                 </div>
 
@@ -75,3 +77,41 @@
     </div>
 </div>
 </AuthenticationCheck>
+
+@code {
+    private string currentPageTitle = "Dashboard";
+    private string currentPageDescription = "Welcome back to your workspace";
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        UpdatePageTitle();
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        UpdatePageTitle();
+        StateHasChanged();
+    }
+
+    private void UpdatePageTitle()
+    {
+        var uri = new Uri(Navigation.Uri);
+        var path = uri.AbsolutePath.TrimStart('/').ToLower();
+
+        (currentPageTitle, currentPageDescription) = path switch
+        {
+            "" or "/" => ("Dashboard", "Welcome back to your workspace"),
+            "company" => ("Company", "Manage your company information and settings"),
+            var p when p.StartsWith("company/") => ("Company", "Company details and management"),
+            "user" => ("User", "Manage user accounts and permissions"),
+            var p when p.StartsWith("user/") => ("User", "User details and management"),
+            _ => ("Dashboard", "Welcome back to your workspace")
+        };
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+}
