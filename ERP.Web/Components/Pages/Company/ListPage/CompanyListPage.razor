@@ -20,7 +20,8 @@
               ShowSearch="false"
               SearchPlaceholder="Search..."
               ShowRefreshButton="true"
-              CreateButtonText="Add Company"
+              CreateButtonText="Add"
+              CreateButton="@CreateCompany"
               OnRefresh="LoadCompanies"
               OnPageChanged="HandlePageChanged"
               OnPageSizeChanged="HandlePageSizeChanged"
@@ -160,5 +161,10 @@
     private void DeleteCompany(string companyId)
     {
         // TODO: Implement delete functionality with confirmation dialog
+    }
+
+    private void CreateCompany()
+    {
+        Navigation.NavigateTo("/company/create");
     }
 }

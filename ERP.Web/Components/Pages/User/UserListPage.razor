@@ -20,7 +20,8 @@
               ShowSearch="false"
               SearchPlaceholder=""
               ShowRefreshButton="true"
-              CreateButtonText="Add User"
+              CreateButtonText="Add"
+              CreateButton="@CreateUser"
               OnRefresh="LoadUsers"
               OnPageChanged="HandlePageChanged"
               OnPageSizeChanged="HandlePageSizeChanged"
@@ -154,5 +155,10 @@
     private void DeleteUser(string userId)
     {
         // TODO: Implement delete functionality with confirmation dialog
+    }
+
+    private void CreateUser()
+    {
+        Navigation.NavigateTo("/user/create");
     }
 }
