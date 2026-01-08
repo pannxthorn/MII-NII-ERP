@@ -29,7 +29,9 @@ namespace ERP.Web.Services
         /// </summary>
         public async Task<BaseResponse<CompanyDTO>> GetCompanyByIdAsync(string companyId)
         {
-            return await ExecuteGetAsync<CompanyDTO>($"api/Company/GetCompanyById?companyId={companyId}");
+            return await ExecuteGetAsync<CompanyDTO>(
+                $"api/Company/GetCompanyById?companyId={companyId}",
+                unwrapDirectResponse: true);
         }
 
         /// <summary>

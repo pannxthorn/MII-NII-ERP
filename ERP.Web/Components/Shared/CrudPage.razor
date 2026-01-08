@@ -1,0 +1,268 @@
+@*
+    CrudPage - Universal CRUD layout component
+    Supports 3 modes: create, edit, view
+    Usage:
+    <CrudPage Mode="create" Title="Company" OnSave="HandleSave">
+        <CrudSection Title="Basic Info">
+            <CrudField Label="Name" @bind-Value="model.Name" />
+        </CrudSection>
+    </CrudPage>
+*@
+
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-6 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto">
+        <!-- Header with Actions -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between gap-3 mb-4">
+                <div class="flex-1">
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        @GetPageTitle()
+                    </h1>
+                    @if (!string.IsNullOrEmpty(Description))
+                    {
+                        <p class="text-sm text-gray-600 mt-1">@Description</p>
+                    }
+                </div>
+                <div class="flex items-center gap-3">
+                    @if (Mode == CrudMode.View)
+                    {
+                        <!-- View Mode Actions -->
+                        @if (OnEdit.HasDelegate)
+                        {
+                            <button type="button"
+                                    @onclick="OnEdit"
+                                    class="px-6 py-2.5 border-2 border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-all shadow-sm flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Edit
+                            </button>
+                        }
+                        @if (OnDelete.HasDelegate)
+                        {
+                            <button type="button"
+                                    @onclick="OnDelete"
+                                    class="px-6 py-2.5 border-2 border-red-600 text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-all shadow-sm flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Delete
+                            </button>
+                        }
+                        @if (!string.IsNullOrEmpty(BackUrl) || OnBack.HasDelegate)
+                        {
+                            <button type="button"
+                                    @onclick="HandleBack"
+                                    class="px-6 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm">
+                                Back
+                            </button>
+                        }
+                    }
+                    else
+                    {
+                        <!-- Create/Edit Mode Actions -->
+                        <button type="button"
+                                @onclick="HandleCancel"
+                                class="px-6 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                form="crudForm"
+                                disabled="@IsLoading"
+                                class="px-8 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            @if (IsLoading)
+                            {
+                                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>@(Mode == CrudMode.Create ? "Creating..." : "Saving...")</span>
+                            }
+                            else
+                            {
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>@(Mode == CrudMode.Create ? "Create" : "Save Changes")</span>
+                            }
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="flex gap-3">
+                    <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-medium text-red-800">Error</p>
+                        <p class="text-sm text-red-700 mt-0.5">@ErrorMessage</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Loading Overlay -->
+        @if (IsLoading)
+        {
+            <div class="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-8 shadow-xl max-w-sm mx-4">
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600"></div>
+                        <div class="text-center">
+                            <p class="text-base font-medium text-gray-900">@GetLoadingMessage()</p>
+                            <p class="text-sm text-gray-600 mt-1">Please wait...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Tabs (optional) -->
+        @if (Tabs != null && Tabs.Any() && Mode == CrudMode.View)
+        {
+            <div class="mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-8">
+                        @foreach (var tab in Tabs)
+                        {
+                            <button type="button"
+                                    @onclick="() => HandleTabChange(tab.Id)"
+                                    class="@GetTabClasses(tab.Id) whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                                @tab.Label
+                            </button>
+                        }
+                    </nav>
+                </div>
+            </div>
+        }
+
+        <!-- Form Content -->
+        @if (Mode == CrudMode.View)
+        {
+            <!-- View Mode: No form wrapper -->
+            <div class="space-y-5">
+                <CascadingValue Value="this">
+                    @ChildContent
+                </CascadingValue>
+            </div>
+        }
+        else
+        {
+            <!-- Create/Edit Mode: Form wrapper -->
+            <form id="crudForm" @onsubmit="HandleSubmit" class="space-y-5">
+                <CascadingValue Value="this">
+                    @ChildContent
+                </CascadingValue>
+            </form>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public CrudMode Mode { get; set; } = CrudMode.Create;
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public string ErrorMessage { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnSave { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnEdit { get; set; }
+    [Parameter] public EventCallback OnDelete { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+    [Parameter] public string? BackUrl { get; set; }
+    [Parameter] public List<TabItem>? Tabs { get; set; }
+    [Parameter] public string ActiveTab { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> OnTabChanged { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        // Debug log
+        Console.WriteLine($"[CrudPage] OnParametersSet - Mode: {Mode}, Title: {Title}");
+        StateHasChanged();
+    }
+
+    private string GetPageTitle()
+    {
+        return Mode switch
+        {
+            CrudMode.Create => $"Create New {Title}",
+            CrudMode.Edit => $"Edit {Title}",
+            CrudMode.View => Title,
+            _ => Title
+        };
+    }
+
+    private string GetLoadingMessage()
+    {
+        return Mode switch
+        {
+            CrudMode.Create => $"Creating {Title}",
+            CrudMode.Edit => $"Saving {Title}",
+            CrudMode.View => $"Loading {Title}",
+            _ => "Processing..."
+        };
+    }
+
+    private string GetTabClasses(string tabId)
+    {
+        var isActive = tabId == ActiveTab;
+        return isActive
+            ? "border-blue-600 text-blue-600"
+            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300";
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (OnSave.HasDelegate)
+        {
+            await OnSave.InvokeAsync();
+        }
+    }
+
+    private async Task HandleCancel()
+    {
+        if (OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+
+    private async Task HandleBack()
+    {
+        if (OnBack.HasDelegate)
+        {
+            await OnBack.InvokeAsync();
+        }
+    }
+
+    private async Task HandleTabChange(string tabId)
+    {
+        if (OnTabChanged.HasDelegate)
+        {
+            await OnTabChanged.InvokeAsync(tabId);
+        }
+    }
+
+    public class TabItem
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+    }
+}
+
+@* Enum for CRUD modes *@
+@code {
+    public enum CrudMode
+    {
+        Create,
+        Edit,
+        View
+    }
+}
